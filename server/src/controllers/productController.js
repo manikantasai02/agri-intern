@@ -1,3 +1,4 @@
+const formatZodError = (err) => (err && Array.isArray(err.issues) ? err.issues.map(e => e.message).join(', ') : (err && Array.isArray(err.errors) ? err.errors.map(e => e.message).join(', ') : (err && err.message) || 'Validation failed'));
 // server/src/controllers/productController.js
 const { z } = require('zod');
 const { db, generateUuid } = require('../db');
@@ -147,7 +148,7 @@ const createProduct = (req, res) => {
   if (!parseResult.success) {
     return res.status(400).json({
       success: false,
-      error: parseResult.error.errors.map(e => e.message).join(', ')
+      error: formatZodError(parseResult.error)
     });
   }
 
@@ -224,7 +225,7 @@ const updateProduct = (req, res) => {
   if (!parseResult.success) {
     return res.status(400).json({
       success: false,
-      error: parseResult.error.errors.map(e => e.message).join(', ')
+      error: formatZodError(parseResult.error)
     });
   }
 

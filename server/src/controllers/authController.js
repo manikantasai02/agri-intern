@@ -4,6 +4,12 @@ const { z } = require('zod');
 const { db, generateUuid } = require('../db');
 const { JWT_SECRET } = require('../middleware/auth');
 
+const formatZodError = (err) => {
+  if (err && Array.isArray(err.issues)) return err.issues.map(e => e.message).join(', ');
+  if (err && Array.isArray(err.errors)) return err.errors.map(e => e.message).join(', ');
+  return err.message || 'Validation failed';
+};
+
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
@@ -25,7 +31,7 @@ const register = (req, res) => {
   if (!result.success) {
     return res.status(400).json({
       success: false,
-      error: result.error.errors.map(e => e.message).join(', ')
+      error: formatZodError(result.error)
     });
   }
 
